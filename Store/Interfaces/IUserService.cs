@@ -15,4 +15,7 @@ public interface IUserService
     
     //Update user task
     Task<IActionResult> UpdateUserAndLogin(int id, UserQuery updatedUser);
+    
+    //Delete user task
+    Task<IActionResult> DeleteUser(int id);
 }

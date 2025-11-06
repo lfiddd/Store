@@ -29,4 +29,7 @@ public class UserController
     
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateUser(int id, UserQuery updatedUser) => await _userService.UpdateUserAndLogin(id, updatedUser);
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser(int id) => await _userService.DeleteUser(id);
 }

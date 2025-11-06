@@ -110,4 +110,29 @@ public class UserService : IUserService
              message = "User updated"
         });
     }
+
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var selectedUser = _context.Logins.Include(l => l.User).FirstOrDefault(l => l.id_user == id);
+        
+        if (selectedUser == null)
+        {
+            return new NotFoundObjectResult(new { status = false, message = "Login not found." });
+        }
+
+        _context.Logins.Remove(selectedUser);
+
+        if (selectedUser.User != null)
+        {
+            _context.Users.Remove(selectedUser.User);
+        }
+
+        await _context.SaveChangesAsync();
+
+        return new OkObjectResult(new
+        {
+            status = true,
+            message = "User and login deleted successfully."
+        });
+    }
 }
