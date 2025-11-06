@@ -4,16 +4,19 @@ using Store.DatabaseContext;
 using Store.Interfaces;
 using Store.Models;
 using Store.Requests;
+using Store.UniversalMethods;
 
 namespace Store.Services;
 
 public class UserService : IUserService
 {
     private readonly ContextDatabase _context;
-
-    public UserService(ContextDatabase contextDatabase)
+    private readonly JWTTokensGenerator _jwtTokensGenerator;
+    
+    public UserService(ContextDatabase contextDatabase, JWTTokensGenerator jwtTokensGenerator)
     {
         _context = contextDatabase;
+        _jwtTokensGenerator = jwtTokensGenerator;
     }
     
     public async Task<IActionResult> GetAllUsers()

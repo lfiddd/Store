@@ -14,12 +14,6 @@ public class UserController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll() => await _userService.GetAllUsers();
     
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetUserById(int id) => await _userService.GetUserById(id);
-    
-    [HttpGet("Search by name")]
-    public async Task<IActionResult> GetUserByName([FromQuery] string? fullName) => await _userService.GetUserByName(fullName);
-    
     [HttpPost]
     public async Task<IActionResult> CreateUser(UserQuery newUser) => await _userService.CreateNewUserAndLogin(newUser);
     
