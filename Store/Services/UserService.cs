@@ -8,11 +8,15 @@ namespace Store.Services;
 public class UserService : IUserService
 {
     private readonly ContextDatabase _context;
-    private IUserService _userService;
+
+    public UserService(ContextDatabase contextDatabase)
+    {
+        _context = contextDatabase;
+    }
     
     public async Task<IActionResult> GetAllUsers()
     {
-         var users = _context.Users.ToListAsync();
+         var users = await _context.Users.ToListAsync();
          
          return new OkObjectResult(new
          {
@@ -21,8 +25,24 @@ public class UserService : IUserService
          });
     }
 
-    public Task<IActionResult> GetUserById(string id)
+    public async Task<IActionResult> GetUserById(int id)
     {
-        throw new NotImplementedException();
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.id_user == id);
+
+        if (user == null)
+        {
+            return new NotFoundObjectResult(new
+            {
+                status = false,
+                message = "User not found"
+            });
+        }
+
+        return new OkObjectResult(new
+        {
+            data = user,
+            status = true
+        });
     }
+
 }

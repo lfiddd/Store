@@ -12,4 +12,7 @@ public class UserController
 
     [HttpGet]
     public async Task<IActionResult> GetAll() => await _userService.GetAllUsers();
+    
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetUserById(int id) => await _userService.GetUserById(id);
 }

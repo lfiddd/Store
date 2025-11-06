@@ -16,6 +16,7 @@ builder.Services.AddDbContext<ContextDatabase>(options =>
 
 builder.Services.AddScoped<IUserService, UserService>();
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
