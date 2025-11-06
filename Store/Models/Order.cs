@@ -11,6 +11,8 @@ public class Order
     public int id_order { get; set; }
     public DateOnly OrderDate { get; set; }
     public decimal TotalAmount { get; set; }
+    public string DeliveryType { get; set; }
+    public string DeliveryAddress { get; set; }
     
     [Required]
     [ForeignKey("OrderStatus")]

@@ -15,4 +15,7 @@ public class UserController
     
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserById(int id) => await _userService.GetUserById(id);
+    
+    [HttpGet("Search by name")]
+    public async Task<IActionResult> GetUserByName([FromQuery] string? fullName) => await _userService.GetUserByName(fullName);
 }

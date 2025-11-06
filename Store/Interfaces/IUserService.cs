@@ -7,4 +7,5 @@ public interface IUserService
     //Get tasks
     Task<IActionResult> GetAllUsers();
     Task<IActionResult> GetUserById(int id);
+    Task<IActionResult> GetUserByName(string fullName);
 }

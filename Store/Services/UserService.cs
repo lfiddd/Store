@@ -45,4 +45,16 @@ public class UserService : IUserService
         });
     }
 
+    public async Task<IActionResult> GetUserByName(string fullName)
+    {
+        var query = _context.Users.AsQueryable();
+        
+        if(!string.IsNullOrEmpty(fullName)) query = query.Where(u => EF.Functions.Like(u.FullName, $"%{fullName}%"));
+        
+        return new OkObjectResult(new
+        {
+            status = true,
+            data = await query.ToListAsync()
+        });
+    }
 }
