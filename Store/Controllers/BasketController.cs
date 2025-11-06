@@ -1,6 +1,10 @@
-﻿namespace Store.Controllers;
+﻿using Microsoft.AspNetCore.Mvc;
 
-public class BasketController
+namespace Store.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class BasketController : ControllerBase
 {
     
 }

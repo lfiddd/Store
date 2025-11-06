@@ -1,6 +1,10 @@
-﻿namespace Store.Controllers;
+﻿using Microsoft.AspNetCore.Mvc;
 
-public class OrderController
+namespace Store.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class OrderController : ControllerBase
 {
     
 }

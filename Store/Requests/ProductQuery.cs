@@ -2,7 +2,6 @@
 
 public class ProductQuery
 {
-    public int id_product { get; set; }
     public string NameProduct { get; set; }
     public string Description { get; set; }
     public decimal Price { get; set; }

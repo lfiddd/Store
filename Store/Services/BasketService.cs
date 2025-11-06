@@ -1,6 +1,8 @@
-﻿namespace Store.Services;
+﻿using Store.Interfaces;
 
-public class BasketService
+namespace Store.Services;
+
+public class BasketService: IBasketService
 {
     
 }

@@ -1,6 +1,8 @@
-﻿namespace Store.Services;
+﻿using Store.Interfaces;
 
-public class OrderService
+namespace Store.Services;
+
+public class OrderService : IOrderService
 {
     
 }

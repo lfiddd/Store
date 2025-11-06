@@ -6,13 +6,11 @@ namespace Store.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController
+public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
     public UserController(IUserService userService) => _userService = userService;
     
-    //Get queryes
-
     [HttpGet]
     public async Task<IActionResult> GetAll() => await _userService.GetAllUsers();
     
@@ -21,8 +19,6 @@ public class UserController
     
     [HttpGet("Search by name")]
     public async Task<IActionResult> GetUserByName([FromQuery] string? fullName) => await _userService.GetUserByName(fullName);
-    
-    //Post queryes
     
     [HttpPost]
     public async Task<IActionResult> CreateUser(UserQuery newUser) => await _userService.CreateNewUserAndLogin(newUser);
