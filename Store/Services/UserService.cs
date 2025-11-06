@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Store.DatabaseContext;
 using Store.Interfaces;
+using Store.Models;
+using Store.Requests;
 
 namespace Store.Services;
 
@@ -55,6 +57,57 @@ public class UserService : IUserService
         {
             status = true,
             data = await query.ToListAsync()
+        });
+    }
+
+    public async Task<IActionResult> CreateNewUserAndLogin(UserQuery newUser)
+    {
+        var newLogin = new Login()
+        {
+            User = new User()
+            {
+                FullName = newUser.FullName,
+                Email = newUser.Email,
+                Address = newUser.Address,
+                PhoneNumber = newUser.PhoneNumber,
+                id_role = 3,
+                CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
+                UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow)
+            },
+            UserLogin = newUser.UserLogin,
+            Password = newUser.Password
+        };
+        
+        await _context.AddAsync(newLogin);
+        await _context.SaveChangesAsync();
+        
+        return new OkObjectResult(new
+        {
+            status = true,
+            message = "User created"
+        });
+    }
+
+    public async Task<IActionResult> UpdateUserAndLogin(int id, UserQuery updatedUser)
+    {
+        var selectedUser = _context.Logins.Include(l => l.User).FirstOrDefault(l => l.id_user == id);
+        if (selectedUser == null)
+        {
+            return new NotFoundObjectResult(new{status = false, message = "User not found"});
+        }
+        
+        selectedUser.UserLogin = updatedUser.UserLogin;
+        selectedUser.Password = updatedUser.Password;
+        selectedUser.User.FullName = updatedUser.FullName;
+        selectedUser.User.Email = updatedUser.Email;
+        selectedUser.User.PhoneNumber = updatedUser.PhoneNumber;
+        selectedUser.User.Address = updatedUser.Address;
+        await _context.SaveChangesAsync();
+
+        return new OkObjectResult(new
+        {
+             status = true,
+             message = "User updated"
         });
     }
 }

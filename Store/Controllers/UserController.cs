@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Store.Interfaces;
+using Store.Requests;
 
 namespace Store.Controllers;
 
@@ -9,6 +10,8 @@ public class UserController
 {
     private readonly IUserService _userService;
     public UserController(IUserService userService) => _userService = userService;
+    
+    //Get queryes
 
     [HttpGet]
     public async Task<IActionResult> GetAll() => await _userService.GetAllUsers();
@@ -18,4 +21,12 @@ public class UserController
     
     [HttpGet("Search by name")]
     public async Task<IActionResult> GetUserByName([FromQuery] string? fullName) => await _userService.GetUserByName(fullName);
+    
+    //Post queryes
+    
+    [HttpPost]
+    public async Task<IActionResult> CreateUser(UserQuery newUser) => await _userService.CreateNewUserAndLogin(newUser);
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateUser(int id, UserQuery updatedUser) => await _userService.UpdateUserAndLogin(id, updatedUser);
 }
