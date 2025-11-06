@@ -1,3 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using Store.DatabaseContext;
+using Store.Interfaces;
+using Store.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
+
+builder.Services.AddDbContext<ContextDatabase>(options => 
+    options.UseNpgsql(builder.Configuration.GetConnectionString("TestDBString")), ServiceLifetime.Scoped);
+
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 

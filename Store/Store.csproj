@@ -23,12 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
       <Folder Include="CustomAtributes\" />
-      <Folder Include="DatabaseContext\" />
-      <Folder Include="Interfaces\" />
-      <Folder Include="Models\" />
-      <Folder Include="Services\" />
       <Folder Include="UniversalMethods\" />
     </ItemGroup>
 
