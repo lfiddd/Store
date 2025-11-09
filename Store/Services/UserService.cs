@@ -11,15 +11,15 @@ namespace Store.Services;
 public class UserService : IUserService
 {
     private readonly ContextDatabase _context;
-    private readonly JWTTokensGenerator _jwtTokensGenerator;
+    // private readonly JWTTokensGenerator _jwtTokensGenerator;
     
-    public UserService(ContextDatabase contextDatabase, JWTTokensGenerator jwtTokensGenerator)
+    public UserService(ContextDatabase contextDatabase/*, JWTTokensGenerator jwtTokensGenerator*/)
     {
         _context = contextDatabase;
-        _jwtTokensGenerator = jwtTokensGenerator;
+        // _jwtTokensGenerator = jwtTokensGenerator;
     }
     
-    public async Task<IActionResult> GetAllUsers()
+    public async Task<IActionResult> GetAllUsers(int id_role)
     {
          var users = await _context.Users.ToListAsync();
          
@@ -29,41 +29,8 @@ public class UserService : IUserService
              status = true
          });
     }
-
-    public async Task<IActionResult> GetUserById(int id)
-    {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.id_user == id);
-
-        if (user == null)
-        {
-            return new NotFoundObjectResult(new
-            {
-                status = false,
-                message = "User not found"
-            });
-        }
-
-        return new OkObjectResult(new
-        {
-            data = user,
-            status = true
-        });
-    }
-
-    public async Task<IActionResult> GetUserByName(string fullName)
-    {
-        var query = _context.Users.AsQueryable();
-        
-        if(!string.IsNullOrEmpty(fullName)) query = query.Where(u => EF.Functions.Like(u.FullName, $"%{fullName}%"));
-        
-        return new OkObjectResult(new
-        {
-            status = true,
-            data = await query.ToListAsync()
-        });
-    }
-
-    public async Task<IActionResult> CreateNewUserAndLogin(UserQuery newUser)
+    
+    public async Task<IActionResult> CreateNewUserAndLogin(UserQuery newUser, int id_role)
     {
         var newLogin = new Login()
         {
@@ -137,5 +104,20 @@ public class UserService : IUserService
             status = true,
             message = "User and login deleted successfully."
         });
+    }
+
+    public Task<IActionResult> AuthorizationAsync(AuthUser authUser)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IActionResult> GetUserProfile(string userId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IActionResult> UpdateUserProfile(string userId)
+    {
+        throw new NotImplementedException();
     }
 }

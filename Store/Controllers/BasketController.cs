@@ -3,7 +3,6 @@
 namespace Store.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
 public class BasketController : ControllerBase
 {
     

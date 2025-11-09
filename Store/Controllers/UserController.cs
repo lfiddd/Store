@@ -1,25 +1,23 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Store.Interfaces;
 using Store.Requests;
 
 namespace Store.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
     public UserController(IUserService userService) => _userService = userService;
-    
-    [HttpGet]
-    public async Task<IActionResult> GetAll() => await _userService.GetAllUsers();
-    
-    [HttpPost]
-    public async Task<IActionResult> CreateUser(UserQuery newUser) => await _userService.CreateNewUserAndLogin(newUser);
-    
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUser(int id, UserQuery updatedUser) => await _userService.UpdateUserAndLogin(id, updatedUser);
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUser(int id) => await _userService.DeleteUser(id);
+    [AllowAnonymous]
+    [HttpPost("Authorization")]
+    public async Task<IActionResult> Authorization([FromBody] AuthUser authUser) => await _userService.AuthorizationAsync(authUser);
+
+    [HttpGet("GetProfile")]
+    public async Task<IActionResult> GetProfile([FromHeader] string userId) => await _userService.GetUserProfile(userId);
+    
+    [HttpPost("UpdateProfile")]
+    public async Task<IActionResult> UpdateProfile([FromHeader] string userId) => await _userService.UpdateUserProfile(userId);
 }
