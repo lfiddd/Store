@@ -3,28 +3,14 @@ using Microsoft.OpenApi.Models;
 using Store.DatabaseContext;
 using Store.Interfaces;
 using Store.Services;
+using Store.UniversalMethods;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Store", Version = "v1" });
-
-    // Сортировка: User → Product → всё остальное
-    c.OrderActionsBy(apiDesc =>
-    {
-        var controller = apiDesc.ActionDescriptor.RouteValues["controller"];
-        return controller switch
-        {
-            "User" => "1",
-            "Product" => "2",
-            _ => "3"
-        };
-    });
-});
+builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<ContextDatabase>(options => 
@@ -32,6 +18,7 @@ builder.Services.AddDbContext<ContextDatabase>(options =>
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddSingleton<JWTTokensGenerator>();
 
 var app = builder.Build();
 

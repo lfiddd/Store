@@ -5,6 +5,7 @@ using Store.Requests;
 namespace Store.Controllers;
 
 [ApiController]
+[Route("/api/[controller]")]
 public class ProductController : ControllerBase
 {
     private readonly IProductService _productService;

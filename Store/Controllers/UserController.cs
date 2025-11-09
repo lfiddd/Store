@@ -19,5 +19,5 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetProfile([FromHeader] string userId) => await _userService.GetUserProfile(userId);
     
     [HttpPost("UpdateProfile")]
-    public async Task<IActionResult> UpdateProfile([FromHeader] string userId) => await _userService.UpdateUserProfile(userId);
+    public async Task<IActionResult> UpdateProfile([FromHeader] string userId, UserQuery updatedProfile) => await _userService.UpdateUserProfile(userId, updatedProfile);
 }

@@ -11,12 +11,12 @@ namespace Store.Services;
 public class UserService : IUserService
 {
     private readonly ContextDatabase _context;
-    // private readonly JWTTokensGenerator _jwtTokensGenerator;
+    private readonly JWTTokensGenerator _jwtTokensGenerator;
     
-    public UserService(ContextDatabase contextDatabase/*, JWTTokensGenerator jwtTokensGenerator*/)
+    public UserService(ContextDatabase contextDatabase, JWTTokensGenerator jwtTokensGenerator)
     {
         _context = contextDatabase;
-        // _jwtTokensGenerator = jwtTokensGenerator;
+        _jwtTokensGenerator = jwtTokensGenerator;
     }
     
     public async Task<IActionResult> GetAllUsers(int id_role)
@@ -116,8 +116,9 @@ public class UserService : IUserService
         throw new NotImplementedException();
     }
 
-    public Task<IActionResult> UpdateUserProfile(string userId)
+    public Task<IActionResult> UpdateUserProfile(string userId, UserQuery updatedProfile)
     {
         throw new NotImplementedException();
     }
+
 }

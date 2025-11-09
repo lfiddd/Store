@@ -22,5 +22,5 @@ public interface IUserService
     
     //Profile tasks
     Task<IActionResult> GetUserProfile([FromHeader] string userId);
-    Task<IActionResult> UpdateUserProfile([FromHeader] string userId);
+    Task<IActionResult> UpdateUserProfile([FromHeader] string userId, UserQuery updatedProfile);
 }
