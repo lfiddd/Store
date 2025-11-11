@@ -18,12 +18,7 @@ public class Basket
     public User User { get; set; }
     
     [Required]
-    [ForeignKey("Product")]
-    public int id_product { get; set; }
-    public Product Product { get; set; }
-    
-    [Required]
     [ForeignKey("Order")]
-    public int id_order { get; set; }
+    public int? id_order { get; set; }
     public Order Order { get; set; }
 }

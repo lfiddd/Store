@@ -17,10 +17,13 @@ public interface IUserService
     //Delete user task
     Task<IActionResult> DeleteUser(int id);
     
+    //Registration task
+    Task<IActionResult> RegitrationUser([FromBody]UserQuery registrationUser);
+    
     //Authorization Task
     Task<IActionResult> AuthorizationAsync([FromBody] AuthUser authUser);
     
     //Profile tasks
-    Task<IActionResult> GetUserProfile([FromHeader] string userId);
-    Task<IActionResult> UpdateUserProfile([FromHeader] string userId, UserQuery updatedProfile);
+    Task<IActionResult> GetUserProfile([FromHeader] int userId);
+    Task<IActionResult> UpdateUserProfile([FromHeader] int userId, UserQuery updatedProfile);
 }

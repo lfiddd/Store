@@ -11,16 +11,27 @@ public class Order
     public int id_order { get; set; }
     public DateOnly OrderDate { get; set; }
     public decimal TotalAmount { get; set; }
-    public string DeliveryType { get; set; }
-    public string DeliveryAddress { get; set; }
-    
-    [Required]
-    [ForeignKey("OrderStatus")]
-    public int id_status { get; set; }
     public OrderStatus OrderStatus { get; set; }
+    public DeliveryType DeliveryType { get; set; }
+    public string DeliveryAddress { get; set; }
     
     [Required]
     [ForeignKey("User")]
     public int id_user { get; set; }
     public User User { get; set; }
+}
+
+public enum OrderStatus
+{
+    preparing,
+    delivering,
+    delivered,
+    canceled
+}
+
+public enum DeliveryType
+{
+    delivery_man,
+    order_pick_up_point,
+    pickup
 }

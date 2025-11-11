@@ -15,8 +15,17 @@ public class ContextDatabase : DbContext
     public DbSet<Product> Products { get; set; }
     public DbSet<Login> Logins { get; set; }
     public DbSet<Basket> Baskets { get; set; }
-    public DbSet<OrderStatus> OrderStatuses { get; set; }
     public DbSet<ProductCategories> ProductCategories { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<Session> Sessions { get; set; }
+    public DbSet<BasketItem> BasketItems { get; set; }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique(); 
+    }
 }

@@ -13,19 +13,6 @@ namespace Store.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "OrderStatuses",
-                columns: table => new
-                {
-                    id_status = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    NameStatus = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrderStatuses", x => x.id_status);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ProductCategories",
                 columns: table => new
                 {
@@ -58,8 +45,11 @@ namespace Store.Migrations
                     id_product = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     NameProduct = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true),
                     Price = table.Column<decimal>(type: "numeric", nullable: false),
+                    Stock = table.Column<int>(type: "integer", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateOnly>(type: "date", nullable: false),
                     id_category = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -83,6 +73,8 @@ namespace Store.Migrations
                     Email = table.Column<string>(type: "text", nullable: false),
                     Address = table.Column<string>(type: "text", nullable: false),
                     PhoneNumber = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateOnly>(type: "date", nullable: false),
+                    UpdatedAt = table.Column<DateOnly>(type: "date", nullable: false),
                     id_role = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -125,18 +117,14 @@ namespace Store.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     OrderDate = table.Column<DateOnly>(type: "date", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "numeric", nullable: false),
-                    id_status = table.Column<int>(type: "integer", nullable: false),
+                    OrderStatus = table.Column<int>(type: "integer", nullable: false),
+                    DeliveryType = table.Column<int>(type: "integer", nullable: false),
+                    DeliveryAddress = table.Column<string>(type: "text", nullable: false),
                     id_user = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Orders", x => x.id_order);
-                    table.ForeignKey(
-                        name: "FK_Orders_OrderStatuses_id_status",
-                        column: x => x.id_status,
-                        principalTable: "OrderStatuses",
-                        principalColumn: "id_status",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Orders_Users_id_user",
                         column: x => x.id_user,
@@ -175,7 +163,6 @@ namespace Store.Migrations
                     ResultPrice = table.Column<decimal>(type: "numeric", nullable: false),
                     IsOrdered = table.Column<bool>(type: "boolean", nullable: false),
                     id_user = table.Column<int>(type: "integer", nullable: false),
-                    id_product = table.Column<int>(type: "integer", nullable: false),
                     id_order = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -188,12 +175,6 @@ namespace Store.Migrations
                         principalColumn: "id_order",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Baskets_Products_id_product",
-                        column: x => x.id_product,
-                        principalTable: "Products",
-                        principalColumn: "id_product",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_Baskets_Users_id_user",
                         column: x => x.id_user,
                         principalTable: "Users",
@@ -201,15 +182,46 @@ namespace Store.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "BasketItems",
+                columns: table => new
+                {
+                    id_basket_item = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id_basket = table.Column<int>(type: "integer", nullable: false),
+                    id_product = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BasketItems", x => x.id_basket_item);
+                    table.ForeignKey(
+                        name: "FK_BasketItems_Baskets_id_basket",
+                        column: x => x.id_basket,
+                        principalTable: "Baskets",
+                        principalColumn: "id_basket",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BasketItems_Products_id_product",
+                        column: x => x.id_product,
+                        principalTable: "Products",
+                        principalColumn: "id_product",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BasketItems_id_basket",
+                table: "BasketItems",
+                column: "id_basket");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BasketItems_id_product",
+                table: "BasketItems",
+                column: "id_product");
+
             migrationBuilder.CreateIndex(
                 name: "IX_Baskets_id_order",
                 table: "Baskets",
                 column: "id_order");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Baskets_id_product",
-                table: "Baskets",
-                column: "id_product");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Baskets_id_user",
@@ -220,11 +232,6 @@ namespace Store.Migrations
                 name: "IX_Logins_id_user",
                 table: "Logins",
                 column: "id_user");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_id_status",
-                table: "Orders",
-                column: "id_status");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_id_user",
@@ -251,7 +258,7 @@ namespace Store.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Baskets");
+                name: "BasketItems");
 
             migrationBuilder.DropTable(
                 name: "Logins");
@@ -260,19 +267,19 @@ namespace Store.Migrations
                 name: "Sessions");
 
             migrationBuilder.DropTable(
-                name: "Orders");
+                name: "Baskets");
 
             migrationBuilder.DropTable(
                 name: "Products");
 
             migrationBuilder.DropTable(
-                name: "OrderStatuses");
-
-            migrationBuilder.DropTable(
-                name: "Users");
+                name: "Orders");
 
             migrationBuilder.DropTable(
                 name: "ProductCategories");
+
+            migrationBuilder.DropTable(
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Roles");

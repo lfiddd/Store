@@ -12,8 +12,8 @@ using Store.DatabaseContext;
 namespace Store.Migrations
 {
     [DbContext(typeof(ContextDatabase))]
-    [Migration("20251106163125_storeAPI3")]
-    partial class storeAPI3
+    [Migration("20251110130653_storeAPI9")]
+    partial class storeAPI9
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,9 +45,6 @@ namespace Store.Migrations
                     b.Property<int>("id_order")
                         .HasColumnType("integer");
 
-                    b.Property<int>("id_product")
-                        .HasColumnType("integer");
-
                     b.Property<int>("id_user")
                         .HasColumnType("integer");
 
@@ -55,11 +52,32 @@ namespace Store.Migrations
 
                     b.HasIndex("id_order");
 
-                    b.HasIndex("id_product");
-
                     b.HasIndex("id_user");
 
                     b.ToTable("Baskets");
+                });
+
+            modelBuilder.Entity("Store.Models.BasketItem", b =>
+                {
+                    b.Property<int>("id_basket_item")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id_basket_item"));
+
+                    b.Property<int>("id_basket")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("id_product")
+                        .HasColumnType("integer");
+
+                    b.HasKey("id_basket_item");
+
+                    b.HasIndex("id_basket");
+
+                    b.HasIndex("id_product");
+
+                    b.ToTable("BasketItems");
                 });
 
             modelBuilder.Entity("Store.Models.Login", b =>
@@ -100,46 +118,26 @@ namespace Store.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("DeliveryType")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("DeliveryType")
+                        .HasColumnType("integer");
 
                     b.Property<DateOnly>("OrderDate")
                         .HasColumnType("date");
 
+                    b.Property<int>("OrderStatus")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("numeric");
-
-                    b.Property<int>("id_status")
-                        .HasColumnType("integer");
 
                     b.Property<int>("id_user")
                         .HasColumnType("integer");
 
                     b.HasKey("id_order");
 
-                    b.HasIndex("id_status");
-
                     b.HasIndex("id_user");
 
                     b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("Store.Models.OrderStatus", b =>
-                {
-                    b.Property<int>("id_status")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id_status"));
-
-                    b.Property<string>("NameStatus")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("id_status");
-
-                    b.ToTable("OrderStatuses");
                 });
 
             modelBuilder.Entity("Store.Models.Product", b =>
@@ -270,6 +268,9 @@ namespace Store.Migrations
 
                     b.HasKey("id_user");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.HasIndex("id_role");
 
                     b.ToTable("Users");
@@ -283,12 +284,6 @@ namespace Store.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Store.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("id_product")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Store.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("id_user")
@@ -297,9 +292,26 @@ namespace Store.Migrations
 
                     b.Navigation("Order");
 
-                    b.Navigation("Product");
-
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Store.Models.BasketItem", b =>
+                {
+                    b.HasOne("Store.Models.Basket", "Basket")
+                        .WithMany()
+                        .HasForeignKey("id_basket")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Store.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("id_product")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Basket");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Store.Models.Login", b =>
@@ -315,19 +327,11 @@ namespace Store.Migrations
 
             modelBuilder.Entity("Store.Models.Order", b =>
                 {
-                    b.HasOne("Store.Models.OrderStatus", "OrderStatus")
-                        .WithMany()
-                        .HasForeignKey("id_status")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Store.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("id_user")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("OrderStatus");
 
                     b.Navigation("User");
                 });
