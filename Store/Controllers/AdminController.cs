@@ -21,6 +21,7 @@ public class AdminController
     
     [HttpPost("CreateNewEmployee")]
     [RoleAtribute([1])]
+    
     public async Task<IActionResult> CreateEmployee(UserQuery newUser, int id_role) => await _userService.CreateNewUserAndLogin(newUser, 2);
     
     [HttpPost("CreateNewUser")]
