@@ -8,7 +8,6 @@ public class Basket
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int id_basket { get; set; }
-    public int ProdCount { get; set; }
     public decimal ResultPrice { get; set; }
     public bool IsOrdered { get; set; }
     

@@ -14,57 +14,79 @@ public class BasketService: IBasketService
     {
         _context = contextDatabase;
     }
-    public async Task<IActionResult> GetBasket()
+    public async Task<IActionResult> GetBasket(int userId)
     {
-        var basket = await _context.Baskets.ToListAsync();
-        
-        return new OkObjectResult(new
+        var selectedSession = _context.Sessions.FirstOrDefault(session => session.id_user == userId);
+        if (selectedSession != null)
         {
-            status = true,
-            data = new{basket = basket}
-        });
-    }
+            var basketItems = await _context.BasketItems.Where(bi => bi.Basket.IsOrdered == false).ToListAsync();
 
-    public async Task<IActionResult> AddProduct(BasketQuery query)
-    {
-        var newBasket = new Basket()
-        {
-            ProdCount = query.ProdCount,
-            ResultPrice = query.ResultPrice,
-            IsOrdered = false,
-            id_user = 1,
-            id_order = null
-        };
-        await _context.AddAsync(newBasket);
-        await _context.SaveChangesAsync();
-
-        foreach (var _id_product in query.id_product)
-        {
-            var newBasketItem = new BasketItem()
+            return new OkObjectResult(new
             {
-                id_product = _id_product,
-                id_basket = newBasket.id_basket,
-            };
-            await _context.AddAsync(newBasketItem);
+                status = true,
+                data = basketItems
+            });
         }
-        
-        await _context.SaveChangesAsync();
-        
-        return new OkObjectResult(new
+        else return new NotFoundObjectResult(new { status = false, message = "Session not found" });
+    }
+    
+    public async Task<IActionResult> AddProduct(BasketQuery query, int userId)
+    { 
+        var selectedSession = _context.Sessions.FirstOrDefault(session => session.id_user == userId);
+        if (selectedSession != null)
         {
-            status = true,
-            message = "Item added successfully"
-        });
+            var newBasket = new Basket()
+            {
+                IsOrdered = false,
+                id_user = userId,
+                id_order = null
+            };
+            await _context.AddAsync(newBasket);
+            await _context.SaveChangesAsync();
+            
+            var priceProd = await _context.BasketItems.Include(bi => bi.Product).FirstOrDefaultAsync(bi => bi.Basket.id_user == userId);
+            
+            foreach (var _id_product in query.id_product)
+            {
+                var newBasketItem = new BasketItem()
+                {
+                    id_product = _id_product,
+                    ProdCount = query.ProdCount,
+                    id_basket = newBasket.id_basket,
+                };
+                newBasket.ResultPrice += priceProd.Product.Price; 
+                await _context.AddAsync(newBasketItem);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return new OkObjectResult(new
+            {
+                status = true,
+                message = "Item added successfully"
+            });
+        }
+        else return new NotFoundObjectResult(new{status = false, message="Session not found"});
     }
 
-    public Task<IActionResult> RemoveProduct(BasketQuery removedbasket)
+    public async Task<IActionResult> RemoveProduct(BasketQuery removedbasket, int userId)
     {
-        throw new NotImplementedException();
+        var selectedSession = _context.Sessions.FirstOrDefault(session => session.id_user == userId);
+        if (selectedSession != null)
+        {
+            return new OkObjectResult(new { status = true, message = "Product removed successfully" });
+        }
+        else return new NotFoundObjectResult(new { status = false, message = "Session not found" });
     }
 
-    public Task<IActionResult> OrderBasket(int id)
+    public async Task<IActionResult> OrderBasket(int id, int userId)
     {
-        throw new NotImplementedException();
+        var selectedSession = _context.Sessions.FirstOrDefault(session => session.id_user == userId);
+        if (selectedSession != null)
+        {
+            return new OkObjectResult(new { status = true, message = "Ordering successfully" });
+        }
+        else return new NotFoundObjectResult(new { status = false, message = "Session not found" });
     }
 
 }

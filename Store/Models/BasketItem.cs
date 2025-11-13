@@ -8,6 +8,7 @@ public class BasketItem
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int id_basket_item { get; set; }
+    public int ProdCount { get; set; }
     
     [Required]
     [ForeignKey("Basket")]

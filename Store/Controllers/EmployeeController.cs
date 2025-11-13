@@ -12,19 +12,19 @@ public class EmployeeController : ControllerBase
     public EmployeeController(IUserService userService) => _userService = userService;
 
     [HttpGet("GetUsers")]
-    [RoleAtribute([2])]
+    [RoleAtribute([1, 2])]
     public async Task<IActionResult> GetAllUsers() => await _userService.GetAllUsers(3);
     
     [HttpPost("CreateUser")]
-    [RoleAtribute([2])]
+    [RoleAtribute([1, 2])]
     public async Task<IActionResult> CreateUser(UserQuery newUser, int id_role) => await _userService.CreateNewUserAndLogin(newUser, 3);
     
     [HttpPut("{id}/UpdateUser")]
-    [RoleAtribute([2])]
+    [RoleAtribute([1, 2])]
     public async Task<IActionResult> UpdateUser(int id, UserQuery updatedUser) => await _userService.UpdateUserAndLogin(id, updatedUser);
 
     [HttpDelete("{id}/DeleteUser")]
-    [RoleAtribute([2])]
+    [RoleAtribute([1, 2])]
     public async Task<IActionResult> DeleteUser(int id) => await _userService.DeleteUser(id);
     
 }
