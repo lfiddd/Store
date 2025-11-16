@@ -48,14 +48,22 @@ public class BasketService: IBasketService
             
             foreach (var _id_product in query.id_product)
             {
-                var newBasketItem = new BasketItem()
+                var baskItem = _context.BasketItems.FirstOrDefault(bi => bi.id_product == _id_product);
+                if (baskItem != null)
                 {
-                    id_product = _id_product,
-                    ProdCount = query.ProdCount,
-                    id_basket = newBasket.id_basket,
-                };
-                newBasket.ResultPrice += priceProd.Product.Price; 
-                await _context.AddAsync(newBasketItem);
+                    baskItem.ProdCount += 1;
+                    _context.Update(baskItem);
+                }
+                else
+                {
+                    var newBasketItem = new BasketItem()
+                    {
+                        id_product = _id_product,
+                        ProdCount = 1,
+                        id_basket = newBasket.id_basket
+                    };
+                    await _context.AddAsync(newBasketItem);
+                }
             }
 
             await _context.SaveChangesAsync();
@@ -74,6 +82,23 @@ public class BasketService: IBasketService
         var selectedSession = _context.Sessions.FirstOrDefault(session => session.id_user == userId);
         if (selectedSession != null)
         {
+            var priceProd = await _context.BasketItems.Include(bi => bi.Product).FirstOrDefaultAsync(bi => bi.Basket.id_user == userId);
+            
+            foreach (var _id_product in removedbasket.id_product)
+            {
+                var baskItem = _context.BasketItems.FirstOrDefault(bi => bi.id_product == _id_product);
+                if (baskItem.ProdCount > 1)
+                {
+                    baskItem.ProdCount -= 1;
+                    _context.Update(baskItem);
+                }
+                else if (baskItem.ProdCount == 1)
+                {
+                    _context.Remove(baskItem);
+                }
+                else return new NotFoundObjectResult(new { status = false, message = "Product not found" });
+            }
+            await _context.SaveChangesAsync();
             return new OkObjectResult(new { status = true, message = "Product removed successfully" });
         }
         else return new NotFoundObjectResult(new { status = false, message = "Session not found" });
@@ -84,6 +109,8 @@ public class BasketService: IBasketService
         var selectedSession = _context.Sessions.FirstOrDefault(session => session.id_user == userId);
         if (selectedSession != null)
         {
+            var selectedBasket = _context.Baskets.Where(b => b.id_user == userId).FirstOrDefaultAsync(b => b.IsOrdered == false);
+            
             return new OkObjectResult(new { status = true, message = "Ordering successfully" });
         }
         else return new NotFoundObjectResult(new { status = false, message = "Session not found" });

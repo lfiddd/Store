@@ -19,11 +19,6 @@ public class OrderController : ControllerBase
     [HttpGet("GetYourOrder")]
     public async Task<IActionResult> GetYourOrder() => await _service.GetYourOrderAsync();
 
-    [HttpPost("order/createOrder")]
-    
-    public async Task<IActionResult> CreateOrder([FromBody] OrderQuery reader) =>
-        await _service.CreateOrderAsync(reader);
-
     [HttpPut("CancelOrder/{id}")]
     
     public async Task<IActionResult> CancelOrder(int id) => await _service.CancelOrderAsync(id);

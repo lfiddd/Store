@@ -15,6 +15,7 @@ public class Order
     public DeliveryType DeliveryType { get; set; }
     public string DeliveryAddress { get; set; }
     
+    
     [Required]
     [ForeignKey("User")]
     public int id_user { get; set; }

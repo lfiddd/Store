@@ -7,7 +7,6 @@ public interface IOrderService
 {
     Task<IActionResult> GetAllOrdersAsync();
     Task<IActionResult> GetYourOrderAsync();
-    Task<IActionResult> CreateOrderAsync(OrderQuery newOrder);
     Task<IActionResult> CancelOrderAsync(int id);
     Task<IActionResult> ChangeYourMindSet(int id, OrderQuery changeOrder);
 }

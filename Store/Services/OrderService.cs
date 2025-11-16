@@ -23,11 +23,7 @@ public class OrderService : IOrderService
     {
         throw new NotImplementedException();
     }
-
-    public Task<IActionResult> CreateOrderAsync(OrderQuery newOrder)
-    {
-        throw new NotImplementedException();
-    }
+    
 
     public Task<IActionResult> CancelOrderAsync(int id)
     {
