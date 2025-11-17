@@ -14,7 +14,7 @@ public class Order
     public OrderStatus OrderStatus { get; set; }
     public DeliveryType DeliveryType { get; set; }
     public string DeliveryAddress { get; set; }
-    
+    public PaymentType PaymentType { get; set; }
     
     [Required]
     [ForeignKey("User")]
@@ -35,4 +35,13 @@ public enum DeliveryType
     delivery_man,
     order_pick_up_point,
     pickup
+}
+
+public enum PaymentType
+{
+    cash,
+    transfer,
+    card, 
+    qr_code,
+    fast_payment_system
 }

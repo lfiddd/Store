@@ -16,12 +16,29 @@ public class OrderService : IOrderService
     }
     public async Task<IActionResult> GetAllOrdersAsync()
     {
-        throw new NotImplementedException();
+        var allOrders  = await _context.Orders.ToListAsync();
+
+        return new OkObjectResult(new
+        {
+            status = true,
+            data = new { orders = allOrders }
+        });
     }
 
-    public Task<IActionResult> GetYourOrderAsync()
+    public async Task<IActionResult> GetYourOrderAsync(int userid)
     {
-        throw new NotImplementedException();
+        var selectedUser = _context.Sessions
+            .FirstOrDefault(session => session.id_user == userid);
+        if (selectedUser != null)
+        {
+            var uOrder = await _context.Orders.FirstOrDefaultAsync(o => o.id_user == selectedUser.id_user);
+            return new OkObjectResult(new { status = true, data = new { order = uOrder } });
+        }
+        else
+        {
+            return new NotFoundObjectResult(new
+                { status = false, message = "Session not founded!" });
+        }
     }
     
 

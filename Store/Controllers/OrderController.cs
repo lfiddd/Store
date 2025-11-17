@@ -13,17 +13,18 @@ public class OrderController : ControllerBase
     public OrderController(IOrderService service) => _service = service;
 
     [HttpGet("order/all")]
-    [RoleAtribute([1])]
+    [RoleAtribute([1, 2])]
     public async Task<IActionResult> GetAllOrders() => await _service.GetAllOrdersAsync();
-    
+
     [HttpGet("GetYourOrder")]
-    public async Task<IActionResult> GetYourOrder() => await _service.GetYourOrderAsync();
+    [RoleAtribute([1, 2, 3])]
+    public async Task<IActionResult> GetYourOrder(int userid) => await _service.GetYourOrderAsync(userid);
 
     [HttpPut("CancelOrder/{id}")]
-    
+    [RoleAtribute([1, 2, 3])]
     public async Task<IActionResult> CancelOrder(int id) => await _service.CancelOrderAsync(id);
     
     [HttpPut("order/changeYourMindSet")]
-    
+    [RoleAtribute([1, 2, 3])]
     public async Task<IActionResult> ChangeYourMindSet(int id, [FromBody] OrderQuery reader) => await _service.ChangeYourMindSet(id, reader);
 }

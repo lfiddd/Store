@@ -13,6 +13,7 @@ public class ProductController : ControllerBase
     public ProductController(IProductService productService) => _productService = productService;
     
     [HttpGet]
+    [RoleAtribute([1, 2, 3])]
     public async Task<IActionResult> GetAll() => await _productService.GetAllProducts();
     
     [HttpPost]
