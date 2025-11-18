@@ -22,6 +22,35 @@ namespace Store.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Store.Models.ActionLogs", b =>
+                {
+                    b.Property<int>("id_log")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id_log"));
+
+                    b.Property<int>("UserActionid_action")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("action_date")
+                        .HasColumnType("date");
+
+                    b.Property<int>("id_action")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("id_user")
+                        .HasColumnType("integer");
+
+                    b.HasKey("id_log");
+
+                    b.HasIndex("UserActionid_action");
+
+                    b.HasIndex("id_user");
+
+                    b.ToTable("ActionLogs");
+                });
+
             modelBuilder.Entity("Store.Models.Basket", b =>
                 {
                     b.Property<int>("id_basket")
@@ -36,7 +65,7 @@ namespace Store.Migrations
                     b.Property<decimal>("ResultPrice")
                         .HasColumnType("numeric");
 
-                    b.Property<int>("id_order")
+                    b.Property<int?>("id_order")
                         .HasColumnType("integer");
 
                     b.Property<int>("id_user")
@@ -77,6 +106,23 @@ namespace Store.Migrations
                     b.ToTable("BasketItems");
                 });
 
+            modelBuilder.Entity("Store.Models.DeliveryType", b =>
+                {
+                    b.Property<int>("Id_delivtype")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id_delivtype"));
+
+                    b.Property<string>("name_type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id_delivtype");
+
+                    b.ToTable("DeliveryTypes");
+                });
+
             modelBuilder.Entity("Store.Models.Login", b =>
                 {
                     b.Property<int>("id_login")
@@ -115,29 +161,69 @@ namespace Store.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("DeliveryType")
-                        .HasColumnType("integer");
-
                     b.Property<DateOnly>("OrderDate")
                         .HasColumnType("date");
 
-                    b.Property<int>("OrderStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PaymentType")
-                        .HasColumnType("integer");
-
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("numeric");
+
+                    b.Property<int>("id_delivtype")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("id_paytype")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("id_status")
+                        .HasColumnType("integer");
 
                     b.Property<int>("id_user")
                         .HasColumnType("integer");
 
                     b.HasKey("id_order");
 
+                    b.HasIndex("id_delivtype");
+
+                    b.HasIndex("id_paytype");
+
+                    b.HasIndex("id_status");
+
                     b.HasIndex("id_user");
 
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("Store.Models.OrderStatus", b =>
+                {
+                    b.Property<int>("Id_status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id_status"));
+
+                    b.Property<string>("name_status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id_status");
+
+                    b.ToTable("OrderStatuses");
+                });
+
+            modelBuilder.Entity("Store.Models.PaymentType", b =>
+                {
+                    b.Property<int>("Id_paytype")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id_paytype"));
+
+                    b.Property<string>("name_paytype")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id_paytype");
+
+                    b.ToTable("PaymentTypes");
                 });
 
             modelBuilder.Entity("Store.Models.Product", b =>
@@ -276,13 +362,51 @@ namespace Store.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Store.Models.UserAction", b =>
+                {
+                    b.Property<int>("id_action")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id_action"));
+
+                    b.Property<string>("action")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("decription")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("id_action");
+
+                    b.ToTable("UserAction");
+                });
+
+            modelBuilder.Entity("Store.Models.ActionLogs", b =>
+                {
+                    b.HasOne("Store.Models.UserAction", "UserAction")
+                        .WithMany()
+                        .HasForeignKey("UserActionid_action")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Store.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("id_user")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+
+                    b.Navigation("UserAction");
+                });
+
             modelBuilder.Entity("Store.Models.Basket", b =>
                 {
                     b.HasOne("Store.Models.Order", "Order")
                         .WithMany()
-                        .HasForeignKey("id_order")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("id_order");
 
                     b.HasOne("Store.Models.User", "User")
                         .WithMany()
@@ -327,11 +451,35 @@ namespace Store.Migrations
 
             modelBuilder.Entity("Store.Models.Order", b =>
                 {
+                    b.HasOne("Store.Models.DeliveryType", "DeliveryType")
+                        .WithMany()
+                        .HasForeignKey("id_delivtype")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Store.Models.PaymentType", "PaymentType")
+                        .WithMany()
+                        .HasForeignKey("id_paytype")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Store.Models.OrderStatus", "OrderStatus")
+                        .WithMany()
+                        .HasForeignKey("id_status")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Store.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("id_user")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("DeliveryType");
+
+                    b.Navigation("OrderStatus");
+
+                    b.Navigation("PaymentType");
 
                     b.Navigation("User");
                 });

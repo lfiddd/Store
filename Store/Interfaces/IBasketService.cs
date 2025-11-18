@@ -5,9 +5,9 @@ namespace Store.Interfaces;
 
 public interface IBasketService
 {
-    Task<IActionResult> GetBasket([FromHeader]int userId);
-    Task<IActionResult> AddProduct([FromHeader]BasketQuery newbasket, int userId);
-    Task<IActionResult> RemoveProduct([FromHeader]BasketQuery removedbasket, int userId);
-    Task<IActionResult> OrderBasket([FromHeader]int id, int userId);
+    Task<IActionResult> GetBasket([FromHeader] string Authorization);
+    Task<IActionResult> AddProduct([FromBody] BasketQuery newbasket,[FromHeader] string Authorization);
+    Task<IActionResult> RemoveProduct([FromHeader] BasketQuery removedbasket, [FromHeader]string Authorization);
+    Task<IActionResult> OrderBasket([FromHeader] string Authorization, OrderQuery order);
 
 }

@@ -13,18 +13,18 @@ public class EmployeeController : ControllerBase
 
     [HttpGet("GetUsers")]
     [RoleAtribute([1, 2])]
-    public async Task<IActionResult> GetAllUsers() => await _userService.GetAllUsers(3);
+    public async Task<IActionResult> GetAllUsers([FromHeader]string Authorization) => await _userService.GetAllUsers(3, Authorization);
     
     [HttpPost("CreateUser")]
     [RoleAtribute([1, 2])]
-    public async Task<IActionResult> CreateUser(UserQuery newUser, int id_role) => await _userService.CreateNewUserAndLogin(newUser, 3);
+    public async Task<IActionResult> CreateUser(UserQuery newUser, int id_role ,[FromHeader]string Authorization) => await _userService.CreateNewUserAndLogin(newUser, 3 ,Authorization);
     
     [HttpPut("{id}/UpdateUser")]
     [RoleAtribute([1, 2])]
-    public async Task<IActionResult> UpdateUser(int id, UserQuery updatedUser) => await _userService.UpdateUserAndLogin(id, updatedUser);
+    public async Task<IActionResult> UpdateUser(int id, UserQuery updatedUser ,[FromHeader]string Authorization) => await _userService.UpdateUserAndLogin(id, updatedUser, Authorization);
 
     [HttpDelete("{id}/DeleteUser")]
     [RoleAtribute([1, 2])]
-    public async Task<IActionResult> DeleteUser(int id) => await _userService.DeleteUser(id);
+    public async Task<IActionResult> DeleteUser(int id, [FromHeader]string Authorization) => await _userService.DeleteUser(id ,Authorization);
     
 }

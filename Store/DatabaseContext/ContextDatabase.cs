@@ -19,6 +19,11 @@ public class ContextDatabase : DbContext
     public DbSet<Role> Roles { get; set; }
     public DbSet<Session> Sessions { get; set; }
     public DbSet<BasketItem> BasketItems { get; set; }
+    public DbSet<UserAction> UserAction { get; set; }
+    public DbSet<ActionLogs> ActionLogs { get; set; }
+    public DbSet<PaymentType> PaymentTypes { get; set; }
+    public DbSet<OrderStatus> OrderStatuses { get; set; }
+    public DbSet<DeliveryType> DeliveryTypes { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

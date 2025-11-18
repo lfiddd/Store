@@ -13,6 +13,45 @@ namespace Store.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "DeliveryTypes",
+                columns: table => new
+                {
+                    Id_delivtype = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name_type = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeliveryTypes", x => x.Id_delivtype);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrderStatuses",
+                columns: table => new
+                {
+                    Id_status = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name_status = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderStatuses", x => x.Id_status);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PaymentTypes",
+                columns: table => new
+                {
+                    Id_paytype = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name_paytype = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PaymentTypes", x => x.Id_paytype);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProductCategories",
                 columns: table => new
                 {
@@ -36,6 +75,20 @@ namespace Store.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.id_role);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserAction",
+                columns: table => new
+                {
+                    id_action = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    action = table.Column<string>(type: "text", nullable: false),
+                    decription = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserAction", x => x.id_action);
                 });
 
             migrationBuilder.CreateTable(
@@ -89,6 +142,34 @@ namespace Store.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ActionLogs",
+                columns: table => new
+                {
+                    id_log = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    action_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    id_user = table.Column<int>(type: "integer", nullable: false),
+                    id_action = table.Column<int>(type: "integer", nullable: false),
+                    UserActionid_action = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ActionLogs", x => x.id_log);
+                    table.ForeignKey(
+                        name: "FK_ActionLogs_UserAction_UserActionid_action",
+                        column: x => x.UserActionid_action,
+                        principalTable: "UserAction",
+                        principalColumn: "id_action",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ActionLogs_Users_id_user",
+                        column: x => x.id_user,
+                        principalTable: "Users",
+                        principalColumn: "id_user",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Logins",
                 columns: table => new
                 {
@@ -117,14 +198,33 @@ namespace Store.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     OrderDate = table.Column<DateOnly>(type: "date", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "numeric", nullable: false),
-                    OrderStatus = table.Column<int>(type: "integer", nullable: false),
-                    DeliveryType = table.Column<int>(type: "integer", nullable: false),
                     DeliveryAddress = table.Column<string>(type: "text", nullable: false),
-                    id_user = table.Column<int>(type: "integer", nullable: false)
+                    id_user = table.Column<int>(type: "integer", nullable: false),
+                    id_delivtype = table.Column<int>(type: "integer", nullable: false),
+                    id_status = table.Column<int>(type: "integer", nullable: false),
+                    id_paytype = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Orders", x => x.id_order);
+                    table.ForeignKey(
+                        name: "FK_Orders_DeliveryTypes_id_delivtype",
+                        column: x => x.id_delivtype,
+                        principalTable: "DeliveryTypes",
+                        principalColumn: "Id_delivtype",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Orders_OrderStatuses_id_status",
+                        column: x => x.id_status,
+                        principalTable: "OrderStatuses",
+                        principalColumn: "Id_status",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Orders_PaymentTypes_id_paytype",
+                        column: x => x.id_paytype,
+                        principalTable: "PaymentTypes",
+                        principalColumn: "Id_paytype",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Orders_Users_id_user",
                         column: x => x.id_user,
@@ -159,7 +259,6 @@ namespace Store.Migrations
                 {
                     id_basket = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ProdCount = table.Column<int>(type: "integer", nullable: false),
                     ResultPrice = table.Column<decimal>(type: "numeric", nullable: false),
                     IsOrdered = table.Column<bool>(type: "boolean", nullable: false),
                     id_user = table.Column<int>(type: "integer", nullable: false),
@@ -188,6 +287,7 @@ namespace Store.Migrations
                 {
                     id_basket_item = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ProdCount = table.Column<int>(type: "integer", nullable: false),
                     id_basket = table.Column<int>(type: "integer", nullable: false),
                     id_product = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -207,6 +307,16 @@ namespace Store.Migrations
                         principalColumn: "id_product",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ActionLogs_id_user",
+                table: "ActionLogs",
+                column: "id_user");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ActionLogs_UserActionid_action",
+                table: "ActionLogs",
+                column: "UserActionid_action");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BasketItems_id_basket",
@@ -234,6 +344,21 @@ namespace Store.Migrations
                 column: "id_user");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Orders_id_delivtype",
+                table: "Orders",
+                column: "id_delivtype");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_id_paytype",
+                table: "Orders",
+                column: "id_paytype");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_id_status",
+                table: "Orders",
+                column: "id_status");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Orders_id_user",
                 table: "Orders",
                 column: "id_user");
@@ -249,6 +374,12 @@ namespace Store.Migrations
                 column: "id_user");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_id_role",
                 table: "Users",
                 column: "id_role");
@@ -258,6 +389,9 @@ namespace Store.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "ActionLogs");
+
+            migrationBuilder.DropTable(
                 name: "BasketItems");
 
             migrationBuilder.DropTable(
@@ -265,6 +399,9 @@ namespace Store.Migrations
 
             migrationBuilder.DropTable(
                 name: "Sessions");
+
+            migrationBuilder.DropTable(
+                name: "UserAction");
 
             migrationBuilder.DropTable(
                 name: "Baskets");
@@ -277,6 +414,15 @@ namespace Store.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProductCategories");
+
+            migrationBuilder.DropTable(
+                name: "DeliveryTypes");
+
+            migrationBuilder.DropTable(
+                name: "OrderStatuses");
+
+            migrationBuilder.DropTable(
+                name: "PaymentTypes");
 
             migrationBuilder.DropTable(
                 name: "Users");

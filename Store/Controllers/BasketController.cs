@@ -14,19 +14,19 @@ public class BasketController : ControllerBase
     
     [HttpGet("GetBasket")]
     [RoleAtribute([1, 2, 3])]
-    public async Task<IActionResult> GetBasket([FromHeader]int userId) => await _basketService.GetBasket(userId);
+    public async Task<IActionResult> GetBasket([FromHeader]string Authorization) => await _basketService.GetBasket(Authorization);
     
     [HttpPost("AddProduct")]
     [RoleAtribute([1, 2, 3])]
-    public async Task<IActionResult> AddProduct([FromHeader]BasketQuery newbasket, int userId) => await _basketService.AddProduct(newbasket, userId);
+    public async Task<IActionResult> AddProduct([FromBody] BasketQuery newbasket,[FromHeader] string Authorization) => await _basketService.AddProduct(newbasket, Authorization);
     
     [HttpPut("DeleteProduct")]
     [RoleAtribute([1, 2, 3])]
-    public async Task<IActionResult> RemoveProduct([FromHeader]BasketQuery removedbasket, int userId) => await _basketService.RemoveProduct(removedbasket, userId);
+    public async Task<IActionResult> RemoveProduct([FromBody] BasketQuery removedbasket, [FromHeader]string Authorization) => await _basketService.RemoveProduct(removedbasket, Authorization);
     
     [HttpPut("OrderBasket")]
     [RoleAtribute([1, 2, 3])]
-    public async Task<IActionResult> OrderBasket([FromHeader]int id, int userId) => await _basketService.OrderBasket(id, userId);
+    public async Task<IActionResult> OrderBasket([FromHeader] string Authorization, OrderQuery order) => await _basketService.OrderBasket(Authorization, order);
  
     
 }

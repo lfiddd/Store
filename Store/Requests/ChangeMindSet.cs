@@ -1,9 +1,8 @@
 ﻿namespace Store.Requests;
 
-public class OrderQuery
+public class ChangeMindSet
 {
-    public int OrderStatus { get; set; }
-    public int DeliveryType { get; set; }
+    public int order_id { get; set; }
     public string DeliveryAddress { get; set; }
     public int PaymentType { get; set; }
 }

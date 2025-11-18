@@ -14,106 +14,126 @@ public class BasketService: IBasketService
     {
         _context = contextDatabase;
     }
-    public async Task<IActionResult> GetBasket(int userId)
+    public async Task<IActionResult> GetBasket(string Authorization)
     {
-        var selectedSession = _context.Sessions.FirstOrDefault(session => session.id_user == userId);
-        if (selectedSession != null)
+        var selecteduser = _context.Sessions.Include(s => s.User).FirstOrDefault(session => session.token == Authorization);
+        var basketItem = await _context.BasketItems.Where(bi => bi.Basket.IsOrdered == false && bi.Basket.id_user == selecteduser.id_user).ToListAsync();
+        
+        return new OkObjectResult(new
         {
-            var basketItems = await _context.BasketItems.Where(bi => bi.Basket.IsOrdered == false).ToListAsync();
-
-            return new OkObjectResult(new
-            {
-                status = true,
-                data = basketItems
-            });
-        }
-        else return new NotFoundObjectResult(new { status = false, message = "Session not found" });
+            status = true,
+            data = new {basketItems = basketItem},
+        });
     }
     
-    public async Task<IActionResult> AddProduct(BasketQuery query, int userId)
+    public async Task<IActionResult> AddProduct(BasketQuery query, string Authorization)
     { 
-        var selectedSession = _context.Sessions.FirstOrDefault(session => session.id_user == userId);
-        if (selectedSession != null)
+        var thisUser = await _context.Sessions
+            .Include(s => s.User)
+            .FirstOrDefaultAsync(s => s.token == Authorization);
+        
+        var basket = await _context.Baskets
+            .FirstOrDefaultAsync(b => b.id_user == thisUser.id_user && b.IsOrdered == false);
+
+        if (basket == null)
         {
-            var newBasket = new Basket()
+            basket = new Basket
             {
+                id_user = thisUser.id_user,
                 IsOrdered = false,
-                id_user = userId,
                 id_order = null
             };
-            await _context.AddAsync(newBasket);
-            await _context.SaveChangesAsync();
-            
-            var priceProd = await _context.BasketItems.Include(bi => bi.Product).FirstOrDefaultAsync(bi => bi.Basket.id_user == userId);
-            
-            foreach (var _id_product in query.id_product)
-            {
-                var baskItem = _context.BasketItems.FirstOrDefault(bi => bi.id_product == _id_product);
-                if (baskItem != null)
-                {
-                    baskItem.ProdCount += 1;
-                    _context.Update(baskItem);
-                }
-                else
-                {
-                    var newBasketItem = new BasketItem()
-                    {
-                        id_product = _id_product,
-                        ProdCount = 1,
-                        id_basket = newBasket.id_basket
-                    };
-                    await _context.AddAsync(newBasketItem);
-                }
-            }
-
-            await _context.SaveChangesAsync();
-
-            return new OkObjectResult(new
-            {
-                status = true,
-                message = "Item added successfully"
-            });
+            _context.Baskets.Add(basket);
+            await _context.SaveChangesAsync(); 
         }
-        else return new NotFoundObjectResult(new{status = false, message="Session not found"});
+
+        var basketItem = await _context.BasketItems
+            .FirstOrDefaultAsync(bi => bi.id_basket == basket.id_basket && bi.id_product == query.id_product);
+
+        if (basketItem == null)
+        {
+            basketItem = new BasketItem
+            {
+                id_basket = basket.id_basket,
+                id_product = query.id_product,
+                ProdCount = 1
+            };
+           await _context.AddAsync(basketItem);
+        }
+        else
+        {
+            basketItem.ProdCount += 1;
+            _context.Update(basketItem);
+        }
+
+        await _context.SaveChangesAsync();
+
+        return new OkObjectResult(new { status = true, message = "Success" });
     }
 
-    public async Task<IActionResult> RemoveProduct(BasketQuery removedbasket, int userId)
+    public async Task<IActionResult> RemoveProduct(BasketQuery query, string Authorization)
     {
-        var selectedSession = _context.Sessions.FirstOrDefault(session => session.id_user == userId);
-        if (selectedSession != null)
+        var thisUser = await _context.Sessions
+            .Include(s => s.User)
+            .FirstOrDefaultAsync(s => s.token == Authorization);
+        
+        var basket = await _context.Baskets
+            .FirstOrDefaultAsync(b => b.id_user == thisUser.id_user && b.IsOrdered == false);
+        
+        var basketItem = await _context.BasketItems.FirstOrDefaultAsync(b => b.id_product == query.id_product && b.id_basket == basket.id_basket);
+
+        if (basketItem.ProdCount > 1)
         {
-            var priceProd = await _context.BasketItems.Include(bi => bi.Product).FirstOrDefaultAsync(bi => bi.Basket.id_user == userId);
-            
-            foreach (var _id_product in removedbasket.id_product)
-            {
-                var baskItem = _context.BasketItems.FirstOrDefault(bi => bi.id_product == _id_product);
-                if (baskItem.ProdCount > 1)
-                {
-                    baskItem.ProdCount -= 1;
-                    _context.Update(baskItem);
-                }
-                else if (baskItem.ProdCount == 1)
-                {
-                    _context.Remove(baskItem);
-                }
-                else return new NotFoundObjectResult(new { status = false, message = "Product not found" });
-            }
+            basketItem.ProdCount -= 1;
+            _context.Update(basketItem);
             await _context.SaveChangesAsync();
-            return new OkObjectResult(new { status = true, message = "Product removed successfully" });
         }
-        else return new NotFoundObjectResult(new { status = false, message = "Session not found" });
+        else
+        {
+            _context.Remove(basketItem);
+            await _context.SaveChangesAsync();
+        }
+
+        
+        return new OkObjectResult(new { status = true, message = "Success" });
     }
 
-    public async Task<IActionResult> OrderBasket(int id, int userId)
+    public async Task<IActionResult> OrderBasket(string Authorization, OrderQuery order)
     {
-        var selectedSession = _context.Sessions.FirstOrDefault(session => session.id_user == userId);
-        if (selectedSession != null)
+        var thisUser = await _context.Sessions
+            .Include(s => s.User)
+            .FirstOrDefaultAsync(s => s.token == Authorization);
+
+        var basket = await _context.Baskets
+            .FirstOrDefaultAsync(b => b.id_user == thisUser.id_user && !b.IsOrdered);
+
+        if (basket == null)
+            return new NotFoundObjectResult(new { status = false, message = "Корзина не найдена или уже оформлена" });
+
+        // 3. Создаём заказ
+        var newOrder = new Order
         {
-            var selectedBasket = _context.Baskets.Where(b => b.id_user == userId).FirstOrDefaultAsync(b => b.IsOrdered == false);
-            
-            return new OkObjectResult(new { status = true, message = "Ordering successfully" });
-        }
-        else return new NotFoundObjectResult(new { status = false, message = "Session not found" });
+            OrderDate = DateOnly.FromDateTime(DateTime.Now),
+            id_user = thisUser.id_user,
+            id_status = order.OrderStatus,
+            id_delivtype = order.DeliveryType,
+            id_paytype = order.PaymentType,
+            DeliveryAddress = order.DeliveryAddress
+        };
+
+        _context.Orders.Add(newOrder);
+
+        // ← СНАЧАЛА СОХРАНЯЕМ, чтобы появился настоящий id_order!
+        await _context.SaveChangesAsync();
+
+        // ← ТЕПЕРЬ можно привязывать!
+        basket.id_order = newOrder.id_order;   // ← теперь тут реальный ID (например 42)
+        basket.IsOrdered = true;
+        _context.Update(basket);
+        // Update не нужен — EF и так видит изменения
+        await _context.SaveChangesAsync();
+        
+        return new OkObjectResult(new { status = true, message = "Success" });
     }
 
 }

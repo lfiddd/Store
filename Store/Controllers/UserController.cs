@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Store.CustomAtributes;
 using Store.Interfaces;
 using Store.Requests;
 
@@ -18,8 +19,10 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Authorization([FromBody] AuthUser authUser) => await _userService.AuthorizationAsync(authUser);
 
     [HttpGet("GetProfile")]
-    public async Task<IActionResult> GetProfile([FromHeader] int userId) => await _userService.GetUserProfile(userId);
+    [RoleAtribute([1, 2, 3])]
+    public async Task<IActionResult> GetProfile([FromHeader] string Authorization) => await _userService.GetUserProfile(Authorization);
     
     [HttpPut("UpdateProfile")]
-    public async Task<IActionResult> UpdateProfile([FromHeader] int userId, UserQuery updatedProfile) => await _userService.UpdateUserProfile(userId, updatedProfile);
+    [RoleAtribute([1, 2, 3])]
+    public async Task<IActionResult> UpdateProfile([FromHeader]string Authorization, UserQuery updatedProfile) => await _userService.UpdateUserProfile(Authorization, updatedProfile);
 }

@@ -14,17 +14,17 @@ public class OrderController : ControllerBase
 
     [HttpGet("order/all")]
     [RoleAtribute([1, 2])]
-    public async Task<IActionResult> GetAllOrders() => await _service.GetAllOrdersAsync();
+    public async Task<IActionResult> GetAllOrders([FromHeader]string Authorization) => await _service.GetAllOrdersAsync(Authorization);
 
     [HttpGet("GetYourOrder")]
     [RoleAtribute([1, 2, 3])]
-    public async Task<IActionResult> GetYourOrder(int userid) => await _service.GetYourOrderAsync(userid);
+    public async Task<IActionResult> GetYourOrder([FromHeader]string Authorization) => await _service.GetYourOrderAsync(Authorization);
 
-    [HttpPut("CancelOrder/{id}")]
+    [HttpDelete("CancelOrder")]
     [RoleAtribute([1, 2, 3])]
-    public async Task<IActionResult> CancelOrder(int id) => await _service.CancelOrderAsync(id);
+    public async Task<IActionResult> CancelOrder([FromHeader]string Authorization, DeleteOrder deleteOrder) => await _service.CancelOrderAsync(Authorization, deleteOrder);
     
     [HttpPut("order/changeYourMindSet")]
     [RoleAtribute([1, 2, 3])]
-    public async Task<IActionResult> ChangeYourMindSet(int id, [FromBody] OrderQuery reader) => await _service.ChangeYourMindSet(id, reader);
+    public async Task<IActionResult> ChangeYourMindSet([FromHeader]string Authorization, [FromBody] ChangeMindSet changeOrder) => await _service.ChangeYourMindSet(Authorization, changeOrder);
 }

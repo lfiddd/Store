@@ -19,7 +19,7 @@ public class UserService : IUserService
         _jwtTokensGenerator = jwtTokensGenerator;
     }
     
-    public async Task<IActionResult> GetAllUsers(int id_role)
+    public async Task<IActionResult> GetAllUsers(int id_role ,string Authorization)
     {
          var users = await _context.Users.Where(u => u.id_role == id_role).ToListAsync();
          
@@ -35,7 +35,7 @@ public class UserService : IUserService
          });
     }
     
-    public async Task<IActionResult> CreateNewUserAndLogin(UserQuery newUser, int id_role)
+    public async Task<IActionResult> CreateNewUserAndLogin(UserQuery newUser, int id_role ,string Authorization)
     {
         var newLogin = new Login()
         {
@@ -132,6 +132,14 @@ public class UserService : IUserService
         await _context.AddAsync(newLogin);
         await _context.SaveChangesAsync();
         
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = newLogin.User.id_user,
+            id_action = 1 
+        });
+        await _context.SaveChangesAsync();
+        
         return new OkObjectResult(new
         {
             status = true,
@@ -156,6 +164,14 @@ public class UserService : IUserService
                 id_user = selectedUser.id_user,
             });
             await _context.SaveChangesAsync();
+            
+            _context.ActionLogs.Add(new ActionLogs()
+            {
+                action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+                id_user = selectedUser.User.id_user,
+                id_action = 2
+            });
+            await _context.SaveChangesAsync();
 
             return new OkObjectResult(new { status = true, data = token, selectedUser.id_user });
         }
@@ -166,25 +182,31 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<IActionResult> GetUserProfile(int userId)
+    public async Task<IActionResult> GetUserProfile(string Authorization)
     {
-        var selectedUser = _context.Sessions
-            .Include(session => session.User)
-            .FirstOrDefault(session => session.id_user == userId);
+        var selectedUser = _context.Sessions.Include(l => l.User).FirstOrDefault(l => l.token == Authorization);
         if (selectedUser != null)
         {
+            _context.ActionLogs.Add(new ActionLogs()
+            {
+                action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+                id_user = selectedUser.id_user,
+                id_action = 3
+            });
+            await _context.SaveChangesAsync();
+
             return new OkObjectResult(new { status = true, selectedUser = selectedUser });
         }
         else
         {
             return new NotFoundObjectResult(new
-                { status = false, message = "Session not founded!" });
+                { status = false, message = "User not founded!" });
         }
     }
 
-    public async Task<IActionResult> UpdateUserProfile(int userId, UserQuery updatedProfile)
+    public async Task<IActionResult> UpdateUserProfile(string Authorization, UserQuery updatedProfile)
     {
-        var selectedSession = _context.Sessions.FirstOrDefault(session => session.id_user == userId);
+        var selectedSession = _context.Sessions.FirstOrDefault(session => session.token == Authorization);
 
         if (selectedSession != null)
         {
@@ -205,6 +227,14 @@ public class UserService : IUserService
             userLogin.User.Address = updatedProfile.Address;
             userLogin.User.UpdatedAt = DateOnly.FromDateTime(DateTime.UtcNow);
 
+            await _context.SaveChangesAsync();
+            
+            _context.ActionLogs.Add(new ActionLogs()
+            {
+                action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+                id_user = userLogin.User.id_user,
+                id_action = 3
+            });
             await _context.SaveChangesAsync();
 
             return new OkObjectResult(new

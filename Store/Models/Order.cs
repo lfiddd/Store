@@ -11,18 +11,31 @@ public class Order
     public int id_order { get; set; }
     public DateOnly OrderDate { get; set; }
     public decimal TotalAmount { get; set; }
-    public OrderStatus OrderStatus { get; set; }
-    public DeliveryType DeliveryType { get; set; }
     public string DeliveryAddress { get; set; }
-    public PaymentType PaymentType { get; set; }
     
     [Required]
     [ForeignKey("User")]
     public int id_user { get; set; }
     public User User { get; set; }
+    
+    [Required]
+    [ForeignKey("DeliveryType")]
+    public int id_delivtype { get; set; }
+    public DeliveryType DeliveryType { get; set; }
+    
+    [Required]
+    [ForeignKey("OrderStatus")]
+    public int id_status { get; set; }
+    public OrderStatus OrderStatus { get; set; }
+    
+    [Required]
+    [ForeignKey("PaymentType")]
+    public int id_paytype { get; set; }
+    public PaymentType PaymentType { get; set; }
+    
 }
 
-public enum OrderStatus
+/*public enum OrderStatus
 {
     preparing,
     delivering,
@@ -44,4 +57,4 @@ public enum PaymentType
     card, 
     qr_code,
     fast_payment_system
-}
+}*/

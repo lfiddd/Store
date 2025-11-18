@@ -14,17 +14,17 @@ public class ProductController : ControllerBase
     
     [HttpGet]
     [RoleAtribute([1, 2, 3])]
-    public async Task<IActionResult> GetAll() => await _productService.GetAllProducts();
+    public async Task<IActionResult> GetAll([FromHeader]string Authorization) => await _productService.GetAllProducts(Authorization);
     
     [HttpPost]
     [RoleAtribute([1, 2])]
-    public async Task<IActionResult> CreateNewProduct(ProductQuery newProduct) => await _productService.CreateNewProduct(newProduct);
+    public async Task<IActionResult> CreateNewProduct(ProductQuery newProduct, [FromHeader]string Authorization) => await _productService.CreateNewProduct(newProduct, Authorization);
     
     [HttpPut("{id}")]
     [RoleAtribute([1, 2])]
-    public async Task<IActionResult> UpdateProduct(int id, ProductQuery updatedproduct) => await _productService.UpdateProduct(id, updatedproduct);
+    public async Task<IActionResult> UpdateProduct(int id, ProductQuery updatedproduct ,[FromHeader]string Authorization) => await _productService.UpdateProduct(id, updatedproduct, Authorization);
 
     [HttpDelete("{id}")]
     [RoleAtribute([1, 2])]
-    public async Task<IActionResult> DeleteProduct(int id) => await _productService.DeleteProduct(id);
+    public async Task<IActionResult> DeleteProduct(int id ,[FromHeader]string Authorization) => await _productService.DeleteProduct(id, Authorization);
 }
