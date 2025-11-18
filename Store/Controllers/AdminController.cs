@@ -22,7 +22,7 @@ public class AdminController
     [HttpPost("CreateNewEmployee")]
     [RoleAtribute([1])]
     
-    public async Task<IActionResult> CreateEmployee(UserQuery newUser, int id_role ,[FromHeader]string Authorization) => await _userService.CreateNewUserAndLogin(newUser, 2 ,Authorization);
+    public async Task<IActionResult> CreateEmployee([FromHeader]string Authorization, UserQuery newUser, int id_role ) => await _userService.CreateNewUserAndLogin(Authorization, newUser, 2 );
     
     [HttpPost("CreateNewUser")]
     [RoleAtribute([1])]
@@ -30,9 +30,9 @@ public class AdminController
     
     [HttpPut("UpdateEmployeeOrUser/{id}")]
     [RoleAtribute([1])]
-    public async Task<IActionResult> UpdateUserOrEmployee(int id, UserQuery updatedUser ,[FromHeader]string Authorization) => await _userService.UpdateUserAndLogin(id, updatedUser ,Authorization);
+    public async Task<IActionResult> UpdateUserOrEmployee([FromHeader]string Authorization, int id, UserQuery updatedUser) => await _userService.UpdateUserAndLogin(Authorization, id, updatedUser);
 
     [HttpDelete("DeleteUserOrEmployee/{id}")]
     [RoleAtribute([1])]
-    public async Task<IActionResult> DeleteUserOrEmployee(int id ,[FromHeader]string Authorization) => await _userService.DeleteUser(id ,Authorization);
+    public async Task<IActionResult> DeleteUserOrEmployee([FromHeader]string Authorization, int id ) => await _userService.DeleteUser(Authorization, id );
 }

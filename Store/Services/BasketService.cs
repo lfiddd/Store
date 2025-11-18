@@ -19,6 +19,14 @@ public class BasketService: IBasketService
         var selecteduser = _context.Sessions.Include(s => s.User).FirstOrDefault(session => session.token == Authorization);
         var basketItem = await _context.BasketItems.Where(bi => bi.Basket.IsOrdered == false && bi.Basket.id_user == selecteduser.id_user).ToListAsync();
         
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = selecteduser.id_user,
+            id_action = 14
+        });
+        await _context.SaveChangesAsync();
+        
         return new OkObjectResult(new
         {
             status = true,
@@ -67,6 +75,14 @@ public class BasketService: IBasketService
         }
 
         await _context.SaveChangesAsync();
+        
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = thisUser.id_user,
+            id_action = 13
+        });
+        await _context.SaveChangesAsync();
 
         return new OkObjectResult(new { status = true, message = "Success" });
     }
@@ -94,6 +110,13 @@ public class BasketService: IBasketService
             await _context.SaveChangesAsync();
         }
 
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = thisUser.id_user,
+            id_action = 15
+        });
+        await _context.SaveChangesAsync();
         
         return new OkObjectResult(new { status = true, message = "Success" });
     }
@@ -110,7 +133,6 @@ public class BasketService: IBasketService
         if (basket == null)
             return new NotFoundObjectResult(new { status = false, message = "Корзина не найдена или уже оформлена" });
 
-        // 3. Создаём заказ
         var newOrder = new Order
         {
             OrderDate = DateOnly.FromDateTime(DateTime.Now),
@@ -123,14 +145,19 @@ public class BasketService: IBasketService
 
         _context.Orders.Add(newOrder);
 
-        // ← СНАЧАЛА СОХРАНЯЕМ, чтобы появился настоящий id_order!
         await _context.SaveChangesAsync();
-
-        // ← ТЕПЕРЬ можно привязывать!
-        basket.id_order = newOrder.id_order;   // ← теперь тут реальный ID (например 42)
+        
+        basket.id_order = newOrder.id_order;  
         basket.IsOrdered = true;
         _context.Update(basket);
-        // Update не нужен — EF и так видит изменения
+        await _context.SaveChangesAsync();
+        
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = thisUser.id_user,
+            id_action = 16
+        });
         await _context.SaveChangesAsync();
         
         return new OkObjectResult(new { status = true, message = "Success" });

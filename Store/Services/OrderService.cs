@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Store.DatabaseContext;
 using Store.Interfaces;
+using Store.Models;
 using Store.Requests;
 
 namespace Store.Services;
@@ -14,10 +15,19 @@ public class OrderService : IOrderService
     {
         _context = contextDatabase;
     }
-    public async Task<IActionResult> GetAllOrdersAsync()
+    public async Task<IActionResult> GetAllOrdersAsync(string Authorization)
     {
         var allOrders  = await _context.Orders.ToListAsync();
 
+        var thisUser = await _context.Sessions.Include(l => l.User).FirstOrDefaultAsync(u => u.token == Authorization);
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = thisUser.id_user,
+            id_action = 17
+        });
+        await _context.SaveChangesAsync();
+        
         return new OkObjectResult(new
         {
             status = true,
@@ -29,11 +39,23 @@ public class OrderService : IOrderService
     {
         var selectedUser = _context.Sessions
             .FirstOrDefault(session => session.token == Authorization);
+        
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = selectedUser.id_user,
+            id_action = 18
+        });
+        await _context.SaveChangesAsync();
+        
         if (selectedUser != null)
         {
             var uOrder = await _context.Orders.FirstOrDefaultAsync(o => o.id_user == selectedUser.id_user);
             return new OkObjectResult(new { status = true, data = new { order = uOrder } });
+            
+            
         }
+        
         else
         {
             return new NotFoundObjectResult(new
@@ -70,6 +92,14 @@ public class OrderService : IOrderService
         _context.Orders.Remove(order);
 
         await _context.SaveChangesAsync();
+        
+        await _context.SaveChangesAsync();_context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = selectedUser.User.id_user,
+            id_action = 19
+        });
+        await _context.SaveChangesAsync();
         return new OkObjectResult(new { status = true, message = "Order has been cancelled!" });
     }
 
@@ -87,6 +117,14 @@ public class OrderService : IOrderService
         uOrder.DeliveryAddress = changeOrder.DeliveryAddress;
         uOrder.id_paytype = changeOrder.PaymentType;
         _context.Update(uOrder);
+        await _context.SaveChangesAsync();
+        
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = selectedUser.id_user,
+            id_action = 20
+        });
         await _context.SaveChangesAsync();
         return new OkObjectResult(new { status = true, message = "Success" });
     }

@@ -21,6 +21,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IBasketService, BasketService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ILogService, LogsService>();
 builder.Services.AddSingleton<JWTTokensGenerator>();
 
 var app = builder.Build();

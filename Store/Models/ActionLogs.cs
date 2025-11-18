@@ -16,7 +16,7 @@ public class ActionLogs
     public User User { get; set; }
     
     [Required]
-    [ForeignKey("Action")]
+    [ForeignKey("UserAction")]
     public int id_action { get; set; }
     public UserAction UserAction { get; set; }
 }

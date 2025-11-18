@@ -19,7 +19,7 @@ public class UserService : IUserService
         _jwtTokensGenerator = jwtTokensGenerator;
     }
     
-    public async Task<IActionResult> GetAllUsers(int id_role ,string Authorization)
+    public async Task<IActionResult> GetAllUsers(string Authorization, int id_role)
     {
          var users = await _context.Users.Where(u => u.id_role == id_role).ToListAsync();
          
@@ -28,6 +28,15 @@ public class UserService : IUserService
              return new NotFoundObjectResult(new { status = false, message = "Users not found." });
          }
          
+         var thisUser = await _context.Sessions.Include(l => l.User).FirstOrDefaultAsync(u => u.token == Authorization);
+         _context.ActionLogs.Add(new ActionLogs()
+         {
+             action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+             id_user = thisUser.id_user,
+             id_action = 21
+         });
+         await _context.SaveChangesAsync();
+         
          return new OkObjectResult(new
          {
              data = new {users = users},
@@ -35,7 +44,7 @@ public class UserService : IUserService
          });
     }
     
-    public async Task<IActionResult> CreateNewUserAndLogin(UserQuery newUser, int id_role ,string Authorization)
+    public async Task<IActionResult> CreateNewUserAndLogin(string Authorization, UserQuery newUser, int id_role )
     {
         var newLogin = new Login()
         {
@@ -53,7 +62,18 @@ public class UserService : IUserService
             Password = newUser.Password
         };
         
+        
+        
         await _context.AddAsync(newLogin);
+        await _context.SaveChangesAsync();
+        
+        var thisUser = await _context.Sessions.Include(l => l.User).FirstOrDefaultAsync(u => u.token == Authorization);
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = thisUser.id_user,
+            id_action = 24
+        });
         await _context.SaveChangesAsync();
         
         return new OkObjectResult(new
@@ -63,7 +83,7 @@ public class UserService : IUserService
         });
     }
 
-    public async Task<IActionResult> UpdateUserAndLogin(int id, UserQuery updatedUser)
+    public async Task<IActionResult> UpdateUserAndLogin(string Authorization, int id, UserQuery updatedUser)
     {
         var selectedUser = _context.Logins.Include(l => l.User).FirstOrDefault(l => l.id_user == id);
         if (selectedUser == null)
@@ -78,6 +98,15 @@ public class UserService : IUserService
         selectedUser.User.PhoneNumber = updatedUser.PhoneNumber;
         selectedUser.User.Address = updatedUser.Address;
         await _context.SaveChangesAsync();
+        
+        var thisUser = await _context.Sessions.Include(l => l.User).FirstOrDefaultAsync(u => u.token == Authorization);
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = thisUser.id_user,
+            id_action = 25
+        });
+        await _context.SaveChangesAsync();
 
         return new OkObjectResult(new
         {
@@ -86,7 +115,7 @@ public class UserService : IUserService
         });
     }
 
-    public async Task<IActionResult> DeleteUser(int id)
+    public async Task<IActionResult> DeleteUser(string Authorization, int id)
     {
         var selectedUser = _context.Logins.Include(l => l.User).FirstOrDefault(l => l.id_user == id);
         
@@ -104,6 +133,15 @@ public class UserService : IUserService
 
         await _context.SaveChangesAsync();
 
+        var thisUser = await _context.Sessions.Include(l => l.User).FirstOrDefaultAsync(u => u.token == Authorization);
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = thisUser.id_user,
+            id_action = 26
+        });
+        await _context.SaveChangesAsync();
+        
         return new OkObjectResult(new
         {
             status = true,

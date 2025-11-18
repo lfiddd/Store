@@ -21,13 +21,13 @@ public class CategoryController : ControllerBase
     
     [HttpPost("CreateCategory")]
     [RoleAtribute([1, 2])]
-    public async Task<IActionResult> CreateCategory(CategoryQuery category ,[FromHeader]string Authorization) => await _categoryService.CreateCategory(category ,Authorization);
+    public async Task<IActionResult> CreateCategory([FromHeader]string Authorization, CategoryQuery category ) => await _categoryService.CreateCategory(Authorization, category );
     
     [HttpPut("UpdateCategory")]
     [RoleAtribute([1, 2])]
-    public async Task<IActionResult> UpdateCategory(int id, CategoryQuery category ,[FromHeader]string Authorization) => await _categoryService.UpdateCategory(id, category ,Authorization);
+    public async Task<IActionResult> UpdateCategory([FromHeader]string Authorization, int id, CategoryQuery category ) => await _categoryService.UpdateCategory(Authorization, id, category );
     
     [HttpDelete("DeleteCategory")]
     [RoleAtribute([1, 2])]
-    public async Task<IActionResult> DeleteCategory(int id ,[FromHeader]string Authorization) => await _categoryService.DeleteCategory(id ,Authorization);
+    public async Task<IActionResult> DeleteCategory([FromHeader]string Authorization, int id ) => await _categoryService.DeleteCategory(Authorization, id );
 }

@@ -15,9 +15,18 @@ public class CategoryService : ICategoryService
     {
         _context = contextDatabase;
     }
-    public async Task<IActionResult> GetCategories()
+    public async Task<IActionResult> GetCategories(string Authorization)
     {
         var productCategories = await _context.ProductCategories.ToListAsync();
+        
+        var thisUser = await _context.Sessions.Include(l => l.User).FirstOrDefaultAsync(u => u.token == Authorization);
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = thisUser.id_user,
+            id_action = 10
+        });
+        await _context.SaveChangesAsync();
 
         return new OkObjectResult(new
         {
@@ -26,7 +35,7 @@ public class CategoryService : ICategoryService
         });
     }
 
-    public async Task<IActionResult> CreateCategory(CategoryQuery category)
+    public async Task<IActionResult> CreateCategory(string Authorization, CategoryQuery category)
     {
         var existingCategory = await _context.ProductCategories
             .FirstOrDefaultAsync(c => c.NameCategory == category.NameCategory);
@@ -41,6 +50,15 @@ public class CategoryService : ICategoryService
 
         await _context.ProductCategories.AddAsync(newCategory);
         await _context.SaveChangesAsync();
+        
+        var thisUser = await _context.Sessions.Include(l => l.User).FirstOrDefaultAsync(u => u.token == Authorization);
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = thisUser.id_user,
+            id_action = 9
+        });
+        await _context.SaveChangesAsync();
 
         return new OkObjectResult(new
         {
@@ -49,7 +67,7 @@ public class CategoryService : ICategoryService
         });
     }
 
-    public async Task<IActionResult> UpdateCategory(int id, CategoryQuery category)
+    public async Task<IActionResult> UpdateCategory(string Authorization, int id, CategoryQuery category)
     {
         var selectedCategory = await _context.ProductCategories
             .FirstOrDefaultAsync(c => c.id_category == id);
@@ -59,6 +77,15 @@ public class CategoryService : ICategoryService
 
         selectedCategory.NameCategory = category.NameCategory;
         await _context.SaveChangesAsync();
+        
+        var thisUser = await _context.Sessions.Include(l => l.User).FirstOrDefaultAsync(u => u.token == Authorization);
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = thisUser.id_user,
+            id_action = 11
+        });
+        await _context.SaveChangesAsync();
 
         return new OkObjectResult(new
         {
@@ -67,7 +94,7 @@ public class CategoryService : ICategoryService
         });
     }
 
-    public async Task<IActionResult> DeleteCategory(int id)
+    public async Task<IActionResult> DeleteCategory(string Authorization, int id)
     {
         var category = await _context.ProductCategories
             .FirstOrDefaultAsync(c => c.id_category == id);
@@ -83,6 +110,15 @@ public class CategoryService : ICategoryService
                 { status = false, message = "Unable to delete category, because it is in use" });
 
         _context.ProductCategories.Remove(category);
+        await _context.SaveChangesAsync();
+        
+        var thisUser = await _context.Sessions.Include(l => l.User).FirstOrDefaultAsync(u => u.token == Authorization);
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = thisUser.id_user,
+            id_action = 12
+        });
         await _context.SaveChangesAsync();
 
         return new OkObjectResult(new

@@ -15,10 +15,18 @@ public class ProductService : IProductService
     {
         _context = contextDatabase;
     }
-    public async Task<IActionResult> GetAllProducts()
+    public async Task<IActionResult> GetAllProducts(string Authorization)
     {
         var product = await _context.Products.ToListAsync();
         
+        var thisUser = await _context.Sessions.Include(l => l.User).FirstOrDefaultAsync(u => u.token == Authorization);
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = thisUser.id_user,
+            id_action = 5
+        });
+        await _context.SaveChangesAsync();
         
         return new OkObjectResult(new
         {
@@ -27,7 +35,7 @@ public class ProductService : IProductService
         });
     }
     
-    public async Task<IActionResult> CreateNewProduct(ProductQuery newProduct)
+    public async Task<IActionResult> CreateNewProduct(string Authorization ,ProductQuery newProduct)
     {
         var newProd = new Product()
         {
@@ -43,6 +51,15 @@ public class ProductService : IProductService
         await _context.AddAsync(newProd);
         await _context.SaveChangesAsync();
         
+        var thisUser = await _context.Sessions.Include(l => l.User).FirstOrDefaultAsync(u => u.token == Authorization);
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = thisUser.id_user,
+            id_action = 6
+        });
+        await _context.SaveChangesAsync();
+        
         return new OkObjectResult(new
         {
             status = true,
@@ -50,7 +67,7 @@ public class ProductService : IProductService
         });
     }
 
-    public async Task<IActionResult> UpdateProduct(int id, ProductQuery updatedproduct)
+    public async Task<IActionResult> UpdateProduct(string Authorization, int id, ProductQuery updatedproduct)
     {
         var selectedProduct = _context.Products.FirstOrDefault(p => p.id_product == id);
         
@@ -68,6 +85,15 @@ public class ProductService : IProductService
         selectedProduct.id_category = updatedproduct.id_category;
         await _context.SaveChangesAsync();
         
+        var thisUser = await _context.Sessions.Include(l => l.User).FirstOrDefaultAsync(u => u.token == Authorization);
+        _context.ActionLogs.Add(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = thisUser.id_user,
+            id_action = 7
+        });
+        await _context.SaveChangesAsync();
+        
         return new OkObjectResult(new
         {
             status = true,
@@ -75,7 +101,7 @@ public class ProductService : IProductService
         });
     }
 
-    public async Task<IActionResult> DeleteProduct(int id)
+    public async Task<IActionResult> DeleteProduct(string Authorization ,int id)
     {
         var selectedProduct = _context.Products.FirstOrDefault(p => p.id_product == id);
         
@@ -85,6 +111,15 @@ public class ProductService : IProductService
         }
         
         _context.Products.Remove(selectedProduct);
+        await _context.SaveChangesAsync();
+        
+        var thisUser = await _context.Sessions.Include(l => l.User).FirstOrDefaultAsync(u => u.token == Authorization);
+        await _context.ActionLogs.AddAsync(new ActionLogs()
+        {
+            action_date = DateOnly.FromDateTime(DateTime.UtcNow),
+            id_user = thisUser.id_user,
+            id_action = 8
+        });
         await _context.SaveChangesAsync();
         
         return new OkObjectResult(new
